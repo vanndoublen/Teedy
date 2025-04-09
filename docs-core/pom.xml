@@ -235,5 +235,10 @@
       </resource>
     </resources>
   </build>
-
+  <distributionManagement>
+    <site>
+      <id>site-docs</id>
+      <url>file://${project.build.directory}/site</url>
+    </site>
+  </distributionManagement>
 </project>
