@@ -112,6 +112,12 @@
       <scope>test</scope>
     </dependency>
 
+<!--    <dependency>-->
+<!--      <groupId>org.junit.jupiter</groupId>-->
+<!--      <artifactId>junit-jupiter</artifactId>-->
+<!--      <version>5.7.1</version> &lt;!&ndash; Central version control &ndash;&gt;-->
+<!--    </dependency>-->
+
   </dependencies>
   
   <!-- Install test jar -->
