@@ -339,7 +339,10 @@
       "approve_title": "Approve User Request",
       "approve_message": "Are you sure you want to approve the request from {{ username }}?",
       "reject_title": "Reject User Request",
-      "reject_message": "Are you sure you want to reject the request from {{ username }}?"
+      "reject_message": "Are you sure you want to reject the request from {{ username }}?",
+      "login": {
+        "request_account": "Request New Account"
+      }
     },
     "workflow": {
       "title": "Workflow configuration",
