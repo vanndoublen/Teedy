@@ -19,7 +19,15 @@ angular.module('docs').controller('Login', function(Restangular, $scope, $rootSc
     };
     $scope.login();
   };
-  
+
+  $scope.openRequestAccount = function() {
+    $uibModal.open({
+      templateUrl: 'partial/docs/request.html',  // Make sure this path matches your project structure
+      controller: 'RequestModal'
+    });
+  };
+
+
   // Login
   $scope.login = function() {
     User.login($scope.user).then(function() {

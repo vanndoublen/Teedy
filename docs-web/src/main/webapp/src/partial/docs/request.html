@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <h3>{{ 'request.title' | translate }}</h3>
+</div>
+<div class="modal-body">
+    <form name="requestForm">
+        <div class="form-group">
+            <label for="requestUsername">{{ 'request.username' | translate }}</label>
+            <input type="text" class="form-control" id="requestUsername"
+                   ng-model="request.username" required>
+        </div>
+        <div class="form-group">
+            <label for="requestPassword">{{ 'request.password' | translate }}</label>
+            <input type="password" class="form-control" id="requestPassword"
+                   ng-model="request.password" required>
+        </div>
+        <div class="form-group">
+            <label for="requestEmail">{{ 'request.email' | translate }}</label>
+            <input type="email" class="form-control" id="requestEmail"
+                   ng-model="request.email" required>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">{{ 'request.cancel' | translate }}</button>
+    <button class="btn btn-primary" ng-click="submit()"
+            ng-disabled="requestForm.$invalid">{{ 'request.submit' | translate }}</button>
+</div>

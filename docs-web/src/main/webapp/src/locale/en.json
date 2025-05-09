@@ -1,4 +1,15 @@
 {
+  "request": {
+    "title": "Request New Account",
+    "username": "Username",
+    "email": "Email",
+    "comment": "Comment (Optional)",
+    "submit": "Submit Request",
+    "cancel": "Cancel",
+    "submit_success": "Your account request has been submitted successfully. An administrator will review it.",
+    "submit_error": "An error occurred while submitting your request. Please try again.",
+    "username_exists": "This username is already taken. Please choose another one."
+  },
   "login": {
     "username": "Username",
     "password": "Password",
