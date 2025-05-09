@@ -274,6 +274,7 @@
     "menu_general_settings": "General settings",
     "menu_workflow": "Workflow",
     "menu_users": "Users",
+    "menu_user_requests": "User Requests",
     "menu_groups": "Groups",
     "menu_vocabularies": "Vocabularies",
     "menu_configuration": "Configuration",
@@ -325,6 +326,20 @@
         "disable_totp_title": "Disable two-factor authentication",
         "disable_totp_message": "Are you sure you want to disable two-factor authentication for this user?"
       }
+    },
+    "userrequest": {
+      "title": "Pending User Requests",
+      "username": "Username",
+      "email": "Email",
+      "create_date": "Request Date",
+      "actions": "Actions",
+      "no_requests": "No pending requests",
+      "approve": "Approve Request",
+      "reject": "Reject Request",
+      "approve_title": "Approve User Request",
+      "approve_message": "Are you sure you want to approve the request from {{ username }}?",
+      "reject_title": "Reject User Request",
+      "reject_message": "Are you sure you want to reject the request from {{ username }}?"
     },
     "workflow": {
       "title": "Workflow configuration",
