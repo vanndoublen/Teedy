@@ -3,27 +3,26 @@
 /**
  * Request account controller.
  */
-App.controller('RequestModal', function($scope, $uibModalInstance, Restangular, $translate, $dialog) {
+angular.module('docs').controller('RequestModal', function($scope, $uibModalInstance, Restangular, $translate, $dialog) {
     $scope.request = {};
 
-    // Submit the request
     $scope.submit = function() {
-        // Basic validation
-        if (!$scope.request.username || !$scope.request.email || !$scope.request.password) {
+        if (!$scope.request.username || !$scope.request.password || !$scope.request.email) {
+            $dialog.error($translate.instant('request.validation_error'));
             return;
         }
 
-        // Call the API endpoint
+        // Follow the same pattern as password_lost
         Restangular.one('userrequest').customPUT({
             username: $scope.request.username,
             password: $scope.request.password,
             email: $scope.request.email
-        }).then(function() {
-            // Success
+        }).then(function(response) {
+            console.log('Success response:', response);
             $dialog.success($translate.instant('request.submit_success'));
             $uibModalInstance.close();
         }, function(response) {
-            // Error handling
+            console.log('Error response:', response);
             if (response.data.type === 'AlreadyExistingUsername') {
                 $dialog.error($translate.instant('request.username_exists'));
             } else {
@@ -32,7 +31,6 @@ App.controller('RequestModal', function($scope, $uibModalInstance, Restangular, 
         });
     };
 
-    // Cancel and close modal
     $scope.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };

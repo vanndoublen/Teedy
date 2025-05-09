@@ -5,6 +5,7 @@
  */
 angular.module('docs').controller('Login', function(Restangular, $scope, $rootScope, $state, $stateParams, $dialog, User, $translate, $uibModal) {
   $scope.codeRequired = false;
+  console.log('Login controller loaded'); // Add this line
 
   // Get the app configuration
   Restangular.one('app').get().then(function(data) {

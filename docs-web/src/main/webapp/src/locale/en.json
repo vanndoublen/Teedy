@@ -21,6 +21,7 @@
     "login_as_guest": "Login as guest",
     "login_failed_title": "Login failed",
     "login_failed_message": "Username or password invalid",
+    "request_account": "Request an account",
     "password_lost_btn": "Password lost?",
     "password_lost_sent_title": "Password reset email sent",
     "password_lost_sent_message": "An email has been sent to <strong>{{ username }}</strong> to reset your password",
