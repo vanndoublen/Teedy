@@ -8,6 +8,7 @@ import com.sismics.docs.rest.constant.BaseFunction;
 import com.sismics.docs.rest.resource.BaseResource;
 import com.sismics.rest.exception.ClientException;
 import com.sismics.rest.exception.ForbiddenClientException;
+import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.ValidationUtil;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
@@ -141,22 +142,33 @@ public class    UserRequestResource extends BaseResource {
      * Approve a user request.
      */
     @PUT
-    @Path("{id}/approve")
+    @Path("{id:[a-z0-9\\\\-]+}/approve")
     public Response approve(@PathParam("id") String id) {
         if (!authenticate()) {
             throw new ForbiddenClientException();
         }
         checkBaseFunction(BaseFunction.ADMIN);
 
-        UserRequest userRequest = userRequestService.approve(id, principal.getId());
+        try {
+            UserRequest userRequest = userRequestService.approve(id, principal.getId());
+            if (userRequest == null) {
+                throw new ServerException("ApprovalError", "Error approving user request");
+            }
 
-        JsonObjectBuilder response = Json.createObjectBuilder()
-                .add("status", "ok")
-                .add("id", userRequest.getId())
-                .add("username", userRequest.getUsername())
-                .add("request_status", userRequest.getStatus());
-        return Response.ok().entity(response.build()).build();
+            JsonObjectBuilder response = Json.createObjectBuilder()
+                    .add("status", "ok")
+                    .add("id", userRequest.getId())
+                    .add("username", userRequest.getUsername())
+                    .add("request_status", userRequest.getStatus());
+            return Response.ok().entity(response.build()).build();
+        } catch (IllegalStateException e) {
+            throw new ClientException("InvalidRequest", e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error approving user request " + e);
+            throw new ServerException("ApprovalError", "Error approving user request", e);
+        }
     }
+
 
     /**
      * Reject a user request.

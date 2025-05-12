@@ -83,6 +83,7 @@ public class UserRequestService  {
         user.setUsername(userRequest.getUsername());
         user.setPassword(userRequest.getPassword()); // Password is already hashed
         user.setEmail(userRequest.getEmail());
+        user.setStorageQuota(100L * 1024L * 1024L); // 100mb
         user.setOnboarding(true);
         try {
             userDao.create(user, processedById);

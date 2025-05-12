@@ -9,7 +9,11 @@ angular.module('docs').controller('SettingsUserRequest', function($scope, $state
      */
     $scope.loadRequests = function() {
         UserRequest.getPendingRequests().then(function(data) {
-            $scope.requests = data.requests;
+            console.log('Received data:', data);
+            $scope.requests = data.requests || [];
+        }).catch(function (error){
+            console.error('Load requests error:', error);
+            $dialog.error($translate.instant('settings.userrequest.load_error'));
         });
     };
 

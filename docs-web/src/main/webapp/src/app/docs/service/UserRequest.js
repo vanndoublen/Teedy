@@ -9,7 +9,15 @@ angular.module('docs').factory('UserRequest', function(Restangular) {
          * Returns all pending user requests.
          */
         getPendingRequests: function() {
-            return Restangular.one('userrequest').get();
+            return Restangular.one('userrequest').get()
+                .then(function(response) {
+                    console.log('Success response:', response);
+                    return response;
+                })
+                .catch(function(error) {
+                    console.error('Error response:', error);
+                    throw error;
+                });;
         },
 
         /**
