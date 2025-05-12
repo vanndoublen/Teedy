@@ -1,0 +1,37 @@
+<h2 translate="settings.userrequest.title">Pending User Requests</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th translate="settings.userrequest.username">Username</th>
+            <th translate="settings.userrequest.email">Email</th>
+            <th translate="settings.userrequest.create_date">Request Date</th>
+            <th translate="settings.userrequest.actions">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-show="!requests">
+            <td colspan="4"><span class="fas fa-circle-notch fa-spin"></span></td>
+        </tr>
+        <tr ng-show="requests.length == 0">
+            <td colspan="4" translate="settings.userrequest.no_requests">No pending requests</td>
+        </tr>
+        <tr ng-repeat="request in requests">
+            <td>{{ request.username }}</td>
+            <td>{{ request.email }}</td>
+            <td>{{ request.create_date | date:'medium' }}</td>
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success btn-sm" ng-click="approve(request)" title="{{ 'settings.userrequest.approve' | translate }}">
+                        <span class="fas fa-check"></span>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" ng-click="reject(request)" title="{{ 'settings.userrequest.reject' | translate }}">
+                        <span class="fas fa-times"></span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

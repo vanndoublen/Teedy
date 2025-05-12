@@ -36,16 +36,18 @@ public final class EMF {
 
             ConfigurationHelper.resolvePlaceHolders(properties);
             ServiceRegistry reg = new StandardServiceRegistryBuilder().applySettings(properties).build();
-
             DbOpenHelper openHelper = new DbOpenHelper(reg) {
                 @Override
                 public void onCreate() throws Exception {
+                    log.info("Creating database from scratch");
                     executeAllScript(0);
                 }
 
                 @Override
                 public void onUpgrade(int oldVersion, int newVersion) throws Exception {
+                    log.info("Upgrading database from version {} to {}", oldVersion, newVersion);
                     for (int version = oldVersion + 1; version <= newVersion; version++) {
+                        log.info("Executing script for version {}", version);
                         executeAllScript(version);
                     }
                 }
