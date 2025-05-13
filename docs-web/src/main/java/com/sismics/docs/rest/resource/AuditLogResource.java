@@ -10,17 +10,22 @@ import com.sismics.docs.core.util.SecurityUtil;
 import com.sismics.docs.core.util.jpa.PaginatedList;
 import com.sismics.docs.core.util.jpa.PaginatedLists;
 import com.sismics.docs.core.util.jpa.SortCriteria;
+import com.sismics.docs.rest.constant.BaseFunction;
 import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.util.JsonUtil;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import jakarta.json.JsonValue;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Audit log REST resources.
@@ -99,4 +104,94 @@ public class AuditLogResource extends BaseResource {
                 .add("total", paginatedList.getResultCount());
         return Response.ok().entity(response.build()).build();
     }
+
+    /**
+     * Returns dashboard data for admin.
+     *
+     * @return Response
+     */
+    @GET
+    @Path("dashboard")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDashboardData() {
+        if (!authenticate()) {
+            throw new ForbiddenClientException();
+        }
+
+
+        checkBaseFunction(BaseFunction.ADMIN);
+
+        AuditLogDao auditLogDao = new AuditLogDao();
+        JsonObjectBuilder response = Json.createObjectBuilder();
+
+        // Get user activity over time (last 30 days)
+        Map<String, Map<String, Long>> userActivity = auditLogDao.getUserActivityOverTime(30);
+        JsonObjectBuilder userActivityJson = Json.createObjectBuilder();
+        for (Map.Entry<String, Map<String, Long>> entry : userActivity.entrySet()) {
+            JsonObjectBuilder dateData = Json.createObjectBuilder();
+            for (Map.Entry<String, Long> dateEntry : entry.getValue().entrySet()) {
+                dateData.add(dateEntry.getKey(), dateEntry.getValue());
+            }
+            userActivityJson.add(entry.getKey(), dateData);
+        }
+        response.add("userActivity", userActivityJson);
+
+        // get activity by type
+        Map<String, Long> activityByType = auditLogDao.getActivityCountByType();
+        JsonObjectBuilder activityByTypeJson = Json.createObjectBuilder();
+        for (Map.Entry<String, Long> entry : activityByType.entrySet()) {
+            activityByTypeJson.add(entry.getKey(), entry.getValue());
+        }
+        response.add("activityByType", activityByTypeJson);
+
+        // get most active documents
+        List<Map<String, Object>> activeDocuments = auditLogDao.getMostActiveDocuments(10);
+        JsonArrayBuilder activeDocsJson = Json.createArrayBuilder();
+        for (Map<String, Object> doc : activeDocuments) {
+            JsonObjectBuilder docJson = Json.createObjectBuilder()
+                    .add("id", (String) doc.get("id"))
+                    .add("title", (String) doc.get("title"))
+                    .add("count", (Long) doc.get("count"));
+            activeDocsJson.add(docJson);
+        }
+        response.add("activeDocuments", activeDocsJson);
+
+
+        // In the getDashboardData method, add:
+
+//recent activity
+        List<Map<String, Object>> recentActivity = auditLogDao.getRecentActivity(20);
+        JsonArrayBuilder activityArray = Json.createArrayBuilder();
+        for (Map<String, Object> activity : recentActivity) {
+            JsonObjectBuilder activityJson = Json.createObjectBuilder()
+                    .add("id", (String) activity.get("id"))
+                    .add("date", (Long) activity.get("date"))
+                    .add("username", (String) activity.get("username"))
+                    .add("type", (String) activity.get("type"))
+                    .add("entityClass", (String) activity.get("entityClass"))
+                    .add("entityId", (String) activity.get("entityId"));
+
+            //optional fields
+            if (activity.get("message") != null) {
+                activityJson.add("message", (String) activity.get("message"));
+            } else {
+                activityJson.add("message", JsonValue.NULL);
+            }
+
+            if (activity.get("documentTitle") != null) {
+                activityJson.add("documentTitle", (String) activity.get("documentTitle"));
+            } else {
+                activityJson.add("documentTitle", JsonValue.NULL);
+            }
+
+            activityArray.add(activityJson);
+        }
+        response.add("recentActivity", activityArray);
+
+
+        return Response.ok().entity(response.build()).build();
+    }
+
+
+
 }

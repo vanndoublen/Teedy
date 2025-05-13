@@ -98,4 +98,144 @@ public class AuditLogDao {
 
         paginatedList.setResultList(auditLogDtoList);
     }
+
+
+    /**
+     * Gets activity counts by user over time.
+     *
+     * @param days Number of days to look back
+     * @return Map of username to activity count by day
+     */
+    public Map<String, Map<String, Long>> getUserActivityOverTime(int days) {
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("daysAgo", new Date(System.currentTimeMillis() - days * 86400000L));
+
+
+        StringBuilder sb = new StringBuilder("select u.USE_USERNAME_C, FORMATDATETIME(l.LOG_CREATEDATE_D, 'yyyy-MM-dd') as log_date, count(l.LOG_ID_C) as count ");
+        sb.append("from T_AUDIT_LOG l ");
+        sb.append("join T_USER u on l.LOG_IDUSER_C = u.USE_ID_C ");
+        sb.append("where l.LOG_CREATEDATE_D > :daysAgo ");
+        sb.append("group by u.USE_USERNAME_C, FORMATDATETIME(l.LOG_CREATEDATE_D, 'yyyy-MM-dd') ");
+        sb.append("order by log_date");
+
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        List<Object[]> resultList = em.createNativeQuery(sb.toString())
+                .setParameter("daysAgo", parameterMap.get("daysAgo"))
+                .getResultList();
+
+        Map<String, Map<String, Long>> result = new HashMap<>();
+        for (Object[] row : resultList) {
+            String username = (String) row[0];
+            String date = (String) row[1];
+            Long count = ((Number) row[2]).longValue();
+
+            if (!result.containsKey(username)) {
+                result.put(username, new HashMap<>());
+            }
+            result.get(username).put(date, count);
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Gets activity counts by type.
+     *
+     * @return Map of activity type to count
+     */
+    public Map<String, Long> getActivityCountByType() {
+        StringBuilder sb = new StringBuilder("select l.LOG_TYPE_C, count(l.LOG_ID_C) as count ");
+        sb.append("from T_AUDIT_LOG l ");
+        sb.append("group by l.LOG_TYPE_C");
+
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        List<Object[]> resultList = em.createNativeQuery(sb.toString())
+                .getResultList();
+
+        Map<String, Long> result = new HashMap<>();
+        for (Object[] row : resultList) {
+            String type = (String) row[0];
+            Long count = ((Number) row[1]).longValue();
+            result.put(type, count);
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets document activity counts.
+     *
+     * @param limit Maximum number of documents to return
+     * @return List of map containing document info and activity counts
+     */
+    public List<Map<String, Object>> getMostActiveDocuments(int limit) {
+        StringBuilder sb = new StringBuilder("select l.LOG_IDENTITY_C, d.DOC_TITLE_C, count(l.LOG_ID_C) as count ");
+        sb.append("from T_AUDIT_LOG l ");
+        sb.append("join T_DOCUMENT d on l.LOG_IDENTITY_C = d.DOC_ID_C ");
+        sb.append("where l.LOG_CLASSENTITY_C = 'Document' ");
+        sb.append("group by l.LOG_IDENTITY_C, d.DOC_TITLE_C ");
+        sb.append("order by count desc ");
+        sb.append("limit :limit");
+
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        List<Object[]> resultList = em.createNativeQuery(sb.toString())
+                .setParameter("limit", limit)
+                .getResultList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : resultList) {
+            Map<String, Object> document = new HashMap<>();
+            document.put("id", (String) row[0]);
+            document.put("title", (String) row[1]);
+            document.put("count", ((Number) row[2]).longValue());
+            result.add(document);
+        }
+
+        return result;
+    }
+
+
+
+    /**
+     * Gets recent activity with details.
+     *
+     * @param limit Maximum number of activities to return
+     * @return List of activity details
+     */
+    public List<Map<String, Object>> getRecentActivity(int limit) {
+        StringBuilder sb = new StringBuilder("select l.LOG_ID_C, l.LOG_CREATEDATE_D, u.USE_USERNAME_C, ");
+        sb.append("l.LOG_TYPE_C, l.LOG_CLASSENTITY_C, l.LOG_IDENTITY_C, l.LOG_MESSAGE_C, ");
+        sb.append("d.DOC_TITLE_C ");
+        sb.append("from T_AUDIT_LOG l ");
+        sb.append("join T_USER u on l.LOG_IDUSER_C = u.USE_ID_C ");
+        sb.append("left join T_DOCUMENT d on (l.LOG_CLASSENTITY_C = 'Document' and l.LOG_IDENTITY_C = d.DOC_ID_C) ");
+        sb.append("order by l.LOG_CREATEDATE_D desc ");
+        sb.append("limit :limit");
+
+        EntityManager em = ThreadLocalContext.get().getEntityManager();
+        List<Object[]> resultList = em.createNativeQuery(sb.toString())
+                .setParameter("limit", limit)
+                .getResultList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : resultList) {
+            Map<String, Object> activity = new HashMap<>();
+            int i = 0;
+            activity.put("id", (String) row[i++]);
+            activity.put("date", ((Timestamp) row[i++]).getTime());
+            activity.put("username", (String) row[i++]);
+            activity.put("type", (String) row[i++]);
+            activity.put("entityClass", (String) row[i++]);
+            activity.put("entityId", (String) row[i++]);
+            activity.put("message", (String) row[i++]);
+            activity.put("documentTitle", row[i]); // may be null
+
+            result.add(activity);
+        }
+
+        return result;
+    }
+
+
 }
