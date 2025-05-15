@@ -13,6 +13,7 @@
     <div class="panel panel-default" ng-show="isAdmin">
       <div class="panel-heading"><strong>{{ 'settings.menu_general_settings' | translate }}</strong></div>
       <ul class="list-group">
+        <a class="list-group-item" ui-sref-active="{ active: 'settings.dashboard.**' }" href="#/settings/dashboard">{{ 'settings.menu_dashboard' | translate }}</a>
         <a class="list-group-item" ui-sref-active="{ active: 'settings.workflow.**' }" href="#/settings/workflow">{{ 'settings.menu_workflow' | translate }}</a>
         <a class="list-group-item" ui-sref-active="{ active: 'settings.user.**' }" href="#/settings/user">{{ 'settings.menu_users' | translate }}</a>
         <a class="list-group-item" ui-sref-active="{ active: 'settings.userrequest.**' }" href="#/settings/userrequest">{{ 'settings.menu_user_requests' | translate }}</a>

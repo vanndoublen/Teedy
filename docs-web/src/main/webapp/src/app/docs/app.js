@@ -19,6 +19,15 @@ angular.module('docs',
 
         // Configuring UI Router
         $stateProvider
+            .state('settings.dashboard', {
+                url: '/dashboard',
+                views: {
+                    'settings': {
+                        templateUrl: 'partial/docs/settings.dashboard.html',
+                        controller: 'SettingsDashboard'
+                    }
+                }
+            })
             .state('settings.userrequest', {
                 url: '/userrequest',
                 views: {
