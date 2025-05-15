@@ -278,6 +278,7 @@
     }
   },
   "settings": {
+    "menu_dashboard": "Activity Dashboard",
     "menu_personal_settings": "Personal settings",
     "menu_user_account": "User account",
     "menu_two_factor_auth": "Two-factor authentication",

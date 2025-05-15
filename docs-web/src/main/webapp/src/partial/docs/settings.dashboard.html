@@ -1,0 +1,94 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="page-header">
+            <h1>Admin Dashboard</h1>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">User Activity (Last 30 Days)</h3>
+            </div>
+            <div class="panel-body">
+                <canvas id="userActivityChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Activity by Type</h3>
+            </div>
+            <div class="panel-body">
+                <canvas id="activityTypeChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Most Active Documents</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Activity Count</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="doc in activeDocuments">
+                        <td><a href="#/document/view/{{ doc.id }}">{{ doc.title }}</a></td>
+                        <td>{{ doc.count }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Recent Activity</h3>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <a ng-repeat="activity in recentActivity" href="#" class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <span class="text-muted">{{ activity.formattedDate }}</span>
+                            </div>
+                            <div class="col-md-2">
+                <span class="label" ng-class="{
+                  'label-success': activity.type === 'CREATE',
+                  'label-primary': activity.type === 'UPDATE',
+                  'label-danger': activity.type === 'DELETE'
+                }">{{ activity.type }}</span>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>{{ activity.username }}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                {{ activity.description }}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
