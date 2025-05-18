@@ -2,6 +2,7 @@
   "request": {
     "title": "Request New Account",
     "username": "Username",
+    "password": "Password",
     "email": "Email",
     "comment": "Comment (Optional)",
     "submit": "Submit Request",
