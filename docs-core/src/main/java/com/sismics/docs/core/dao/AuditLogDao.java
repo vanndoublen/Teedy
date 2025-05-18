@@ -4,7 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.sismics.docs.core.constant.AuditLogType;
 import com.sismics.docs.core.dao.criteria.AuditLogCriteria;
+import com.sismics.docs.core.dao.criteria.DocumentCriteria;
 import com.sismics.docs.core.dao.dto.AuditLogDto;
+import com.sismics.docs.core.dao.dto.DocumentDto;
 import com.sismics.docs.core.model.jpa.AuditLog;
 import com.sismics.docs.core.util.jpa.PaginatedList;
 import com.sismics.docs.core.util.jpa.PaginatedLists;
@@ -163,37 +165,84 @@ public class AuditLogDao {
         return result;
     }
 
-    /**
-     * Gets document activity counts.
-     *
-     * @param limit Maximum number of documents to return
-     * @return List of map containing document info and activity counts
-     */
-    public List<Map<String, Object>> getMostActiveDocuments(int limit) {
-        StringBuilder sb = new StringBuilder("select l.LOG_IDENTITY_C, d.DOC_TITLE_C, count(l.LOG_ID_C) as count ");
-        sb.append("from T_AUDIT_LOG l ");
-        sb.append("join T_DOCUMENT d on l.LOG_IDENTITY_C = d.DOC_ID_C ");
-        sb.append("where l.LOG_CLASSENTITY_C = 'Document' ");
-        sb.append("group by l.LOG_IDENTITY_C, d.DOC_TITLE_C ");
-        sb.append("order by count desc ");
-        sb.append("limit :limit");
 
+    public List<Map<String, Object>> getMostActiveDocuments(int limit) {
+
+        //get the active docs only
         EntityManager em = ThreadLocalContext.get().getEntityManager();
-        List<Object[]> resultList = em.createNativeQuery(sb.toString())
-                .setParameter("limit", limit)
+        List<Object[]> documentList = em.createNativeQuery(
+                        "SELECT d.DOC_ID_C, d.DOC_TITLE_C FROM T_DOCUMENT d WHERE d.DOC_DELETEDATE_D IS NULL")
                 .getResultList();
 
+        //count the audit log for each doc
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Object[] row : resultList) {
-            Map<String, Object> document = new HashMap<>();
-            document.put("id", (String) row[0]);
-            document.put("title", (String) row[1]);
-            document.put("count", ((Number) row[2]).longValue());
-            result.add(document);
+        for (Object[] doc : documentList) {
+            String documentId = (String) doc[0];
+            String documentTitle = (String) doc[1];
+
+
+            AuditLogCriteria criteria = new AuditLogCriteria();
+            criteria.setDocumentId(documentId);
+
+
+            PaginatedList<AuditLogDto> logs = PaginatedLists.create(Integer.MAX_VALUE, 0);
+            findByCriteria(logs, criteria, null);
+
+
+            if (logs.getResultList().size() > 0) {
+                Map<String, Object> documentActivity = new HashMap<>();
+                documentActivity.put("id", documentId);
+                documentActivity.put("title", documentTitle);
+                documentActivity.put("count", (long) logs.getResultList().size());
+                result.add(documentActivity);
+            }
+        }
+
+
+        result.sort((a, b) -> Long.compare((Long) b.get("count"), (Long) a.get("count")));
+
+
+        if (result.size() > limit) {
+            result = result.subList(0, limit);
         }
 
         return result;
     }
+
+
+//    public List<Map<String, Object>> getMostActiveDocuments(int limit) {
+//        StringBuilder sb = new StringBuilder("select d.DOC_ID_C, d.DOC_TITLE_C, count(l.LOG_ID_C) as count ");
+//        sb.append("from T_DOCUMENT d ");
+//        sb.append("left join T_AUDIT_LOG l on (");
+//        sb.append("  (l.LOG_IDENTITY_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Document') or ");
+//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Comment') or ");
+//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'File') or ");
+//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Acl') or ");
+//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Route') ");
+//        sb.append(") ");
+//        sb.append("where d.DOC_DELETEDATE_D is null ");
+//        sb.append("group by d.DOC_ID_C, d.DOC_TITLE_C ");
+//        sb.append("having count(l.LOG_ID_C) > 0 ");
+//        sb.append("order by count desc ");
+//        sb.append("limit :limit");
+//
+//        EntityManager em = ThreadLocalContext.get().getEntityManager();
+//        List<Object[]> resultList = em.createNativeQuery(sb.toString())
+//                .setParameter("limit", limit)
+//                .getResultList();
+//
+//        List<Map<String, Object>> result = new ArrayList<>();
+//        for (Object[] row : resultList) {
+//            Map<String, Object> document = new HashMap<>();
+//            document.put("id", (String) row[0]);
+//            document.put("title", (String) row[1]);
+//            document.put("count", ((Number) row[2]).longValue());
+//            result.add(document);
+//        }
+//
+//        return result;
+//    }
+//
 
 
 

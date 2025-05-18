@@ -56,39 +56,101 @@
     </div>
 </div>
 
+<div ng-repeat="(username, logs) in groupedActivity">
+    <h4>
+        <a ng-href="#/user/{{ username }}" class="btn btn-xs btn-default">
+            <span class="fas fa-user"></span>
+            {{ username }}
+        </a>
+        <small>({{ logs.length }} activities)</small>
+    </h4>
 
+    <table class="table">
+        <tr ng-repeat="log in logs">
+            <td width="20%" class="text-muted small">{{ log.date | date:'medium' }}</td>
+            <td class="va-middle">
+                <span ng-class="{ 'text-danger': log.type == 'DELETE', 'text-info': log.type == 'UPDATE', 'text-success': log.type == 'CREATE' }">
+                    {{ log.entityClass }}
+                    <span ng-switch="log.type">
+                        <span ng-switch-when="CREATE">created</span>
+                        <span ng-switch-when="UPDATE">updated</span>
+                        <span ng-switch-when="DELETE">deleted</span>
+                    </span>
+                    :
+                </span>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Recent Activity</h3>
-            </div>
-            <div class="panel-body">
-                <div class="list-group">
-                    <a ng-repeat="activity in recentActivity" href="#" class="list-group-item">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <span class="text-muted">{{ activity.formattedDate }}</span>
-                            </div>
-                            <div class="col-md-2">
-                <span class="label" ng-class="{
-                  'label-success': activity.type === 'CREATE',
-                  'label-primary': activity.type === 'UPDATE',
-                  'label-danger': activity.type === 'DELETE'
-                }">{{ activity.type }}</span>
-                            </div>
-                            <div class="col-md-2">
-                                <strong>{{ activity.username }}</strong>
-                            </div>
-                            <div class="col-md-6">
-                                {{ activity.description }}
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+                <span ng-switch="log.entityClass">
+                    <span ng-switch-when="Document">
+                        <a ng-href="#/document/view/{{ log.entityId }}">{{ log.message }}</a>
+                    </span>
+                    <span ng-switch-when="File">
+                        <a ng-href="#/document/file/{{ log.entityId }}">{{ log.message || 'File' }}</a>
+                    </span>
+                    <span ng-switch-when="Comment">
+                        <a ng-href="#/document/view/{{ log.message }}">View document</a>
+                    </span>
+                    <span ng-switch-when="Acl" class="label label-default">
+                        {{ log.message }}
+                    </span>
+                    <span ng-switch-when="Tag">
+                        <a href="#/tag">{{ log.message }}</a>
+                    </span>
+                    <span ng-switch-when="User">
+                        <a href="#/user/{{ log.message }}">{{ log.message }}</a>
+                    </span>
+                    <span ng-switch-when="Group">
+                        <a href="#/group/{{ log.message }}">{{ log.message }}</a>
+                    </span>
+                    <span ng-switch-when="RouteModel">
+                        <a href="#/settings/workflow/edit/{{ log.entityId }}">{{ log.message }}</a>
+                    </span>
+                    <span ng-switch-when="Route">
+                        <a ng-href="#/document/view/{{ log.message }}">View document</a>
+                    </span>
+                    <span ng-switch-default>{{ log.message }}</span>
+                </span>
+            </td>
+        </tr>
+    </table>
+    <hr ng-if="!$last">
 </div>
+
+
+
+
+
+
+<!--<div class="row">-->
+<!--    <div class="col-md-12">-->
+<!--        <div class="panel panel-default">-->
+<!--            <div class="panel-heading">-->
+<!--                <h3 class="panel-title">Recent Activity</h3>-->
+<!--            </div>-->
+<!--            <div class="panel-body">-->
+<!--                <div class="list-group">-->
+<!--                    <a ng-repeat="activity in recentActivity" href="#" class="list-group-item">-->
+<!--                        <div class="row">-->
+<!--                            <div class="col-md-2">-->
+<!--                                <span class="text-muted">{{ activity.formattedDate }}</span>-->
+<!--                            </div>-->
+<!--                            <div class="col-md-2">-->
+<!--                <span class="label" ng-class="{-->
+<!--                  'label-success': activity.type === 'CREATE',-->
+<!--                  'label-primary': activity.type === 'UPDATE',-->
+<!--                  'label-danger': activity.type === 'DELETE'-->
+<!--                }">{{ activity.type }}</span>-->
+<!--                            </div>-->
+<!--                            <div class="col-md-2">-->
+<!--                                <strong>{{ activity.username }}</strong>-->
+<!--                            </div>-->
+<!--                            <div class="col-md-6">-->
+<!--                                {{ activity.description }}-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
