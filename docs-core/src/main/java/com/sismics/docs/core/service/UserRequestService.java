@@ -50,18 +50,15 @@ public class UserRequestService  {
     }
 
     public UserRequest createRequest(String username, String password, String email) {
-        // Check for existing pending request
         UserRequest existingRequest = userRequestDao.getActiveByUsername(username);
         if (existingRequest != null) {
             throw new IllegalStateException("AlreadyExistingRequest");
         }
 
-        // Check for existing user
         if (userDao.getActiveByUsername(username) != null) {
             throw new IllegalStateException("AlreadyExistingUsername");
         }
 
-        // Create the request with hashed password
         UserRequest userRequest = new UserRequest();
         userRequest.setUsername(username);
         userRequest.setPassword(hashPassword(password));
@@ -92,7 +89,6 @@ public class UserRequestService  {
             return null;
         }
 
-        // Update request status
         userRequest.setStatus("APPROVED");
         userRequest.setProcessDate(new Date());
         userRequest.setProcessedBy(processedById);

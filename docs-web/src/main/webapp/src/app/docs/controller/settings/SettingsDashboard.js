@@ -21,7 +21,6 @@ angular.module('docs').controller('SettingsDashboard', function ($scope, Restang
     // load dashboard data
     $scope.loadDashboard = function () {
         Restangular.one('auditlog/dashboard').get().then(function (data) {
-            // Process user activity data
             const userActivity = data.userActivity;
             const users = Object.keys(userActivity);
             const allDates = new Set();
@@ -68,36 +67,7 @@ angular.module('docs').controller('SettingsDashboard', function ($scope, Restang
                     $scope.groupedActivity[log.username].push(log);
                 });
             } else {
-                console.log("No recent activity data found in response");
-                //test
-                // $scope.recentActivity = [
-                //     {
-                //         date: new Date().getTime(),
-                //         username: "test_user1",
-                //         type: "CREATE",
-                //         entityClass: "Document",
-                //         entityId: "test_id1",
-                //         message: "Test Document 1"
-                //     },
-                //     {
-                //         date: new Date().getTime() - 3600000, // 1 hour ago
-                //         username: "test_user1",
-                //         type: "UPDATE",
-                //         entityClass: "Document",
-                //         entityId: "test_id2",
-                //         message: "Test Document 2"
-                //     },
-                //     {
-                //         date: new Date().getTime() - 7200000, // 2 hours ago
-                //         username: "test_user2",
-                //         type: "DELETE",
-                //         entityClass: "File",
-                //         entityId: "test_id3",
-                //         message: "Test File"
-                //     }
-                // ];
 
-                // Group test activities
                 $scope.groupedActivity = {};
                 angular.forEach($scope.recentActivity, function(log) {
                     if (!$scope.groupedActivity[log.username]) {
@@ -140,6 +110,5 @@ angular.module('docs').controller('SettingsDashboard', function ($scope, Restang
 
     }
 
-    // Load dashboard on init
     $scope.loadDashboard();
 });

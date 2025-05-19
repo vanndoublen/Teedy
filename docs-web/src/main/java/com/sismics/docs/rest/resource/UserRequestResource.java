@@ -44,20 +44,17 @@ public class    UserRequestResource extends BaseResource {
             @FormParam("password") String password,
             @FormParam("email") String email) {
 
-        // Validate the input data
         username = ValidationUtil.validateLength(username, "username", 3, 50);
         ValidationUtil.validateUsername(username, "username");
         password = ValidationUtil.validateLength(password, "password", 8, 50);
         email = ValidationUtil.validateLength(email, "email", 1, 100);
         ValidationUtil.validateEmail(email, "email");
 
-        // Check if username/email already exists
         UserDao userDao = new UserDao();
         if (userDao.getActiveByUsername(username) != null) {
             throw new ClientException("AlreadyExistingUsername", "Username already used");
         }
 
-        // Create the user request
         UserRequest userRequest = new UserRequest();
         userRequest.setUsername(username);
         userRequest.setPassword(password);
@@ -66,7 +63,6 @@ public class    UserRequestResource extends BaseResource {
 
         userRequestDao.create(userRequest);
 
-        // Return OK
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("status", "ok");
         return Response.ok().entity(response.build()).build();
@@ -91,10 +87,8 @@ public class    UserRequestResource extends BaseResource {
             throw new ClientException("ValidationError", "Email is required");
         }
 
-        // Create the user request
         UserRequest userRequest = userRequestService.createRequest(username, password, email);
 
-        // Return the response
         JsonObjectBuilder response = Json.createObjectBuilder()
                 .add("status", "ok")
                 .add("id", userRequest.getId())

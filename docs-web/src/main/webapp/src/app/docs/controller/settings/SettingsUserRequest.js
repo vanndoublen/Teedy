@@ -4,9 +4,7 @@
  * Settings user request page controller.
  */
 angular.module('docs').controller('SettingsUserRequest', function($scope, $state, $dialog, UserRequest, $translate) {
-    /**
-     * Load pending user requests.
-     */
+
     $scope.loadRequests = function() {
         UserRequest.getPendingRequests().then(function(data) {
             console.log('Received data:', data);
@@ -19,9 +17,7 @@ angular.module('docs').controller('SettingsUserRequest', function($scope, $state
 
     $scope.loadRequests();
 
-    /**
-     * Approve a user request.
-     */
+
     $scope.approve = function(request) {
         var title = $translate.instant('settings.userrequest.approve_title');
         var msg = $translate.instant('settings.userrequest.approve_message', { username: request.username });
@@ -39,9 +35,7 @@ angular.module('docs').controller('SettingsUserRequest', function($scope, $state
         });
     };
 
-    /**
-     * Reject a user request.
-     */
+
     $scope.reject = function(request) {
         var title = $translate.instant('settings.userrequest.reject_title');
         var msg = $translate.instant('settings.userrequest.reject_message', { username: request.username });

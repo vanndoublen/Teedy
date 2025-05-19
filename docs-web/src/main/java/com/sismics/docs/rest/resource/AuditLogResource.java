@@ -157,7 +157,7 @@ public class AuditLogResource extends BaseResource {
         response.add("activeDocuments", activeDocsJson);
 
 
-        // In the getDashboardData method, add:
+
 
 //recent activity
         List<Map<String, Object>> recentActivity = auditLogDao.getRecentActivity(20);

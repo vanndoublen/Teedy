@@ -42,13 +42,7 @@ public class AuditLogDao {
         return auditLog.getId();
     }
     
-    /**
-     * Searches audit logs by criteria.
-     * 
-     * @param paginatedList List of audit logs (updated by side effects)
-     * @param criteria Search criteria
-     * @param sortCriteria Sort criteria
-     */
+
     public void findByCriteria(PaginatedList<AuditLogDto> paginatedList, AuditLogCriteria criteria, SortCriteria sortCriteria) {
         Map<String, Object> parameterMap = new HashMap<>();
         
@@ -58,7 +52,6 @@ public class AuditLogDao {
         
         // Adds search criteria
         if (criteria.getDocumentId() != null) {
-            // ACL on document is not checked here, rights have been checked before
             queries.add(baseQuery + " where l.LOG_IDENTITY_C = :documentId ");
             queries.add(baseQuery + " where l.LOG_IDENTITY_C in (select f.FIL_ID_C from T_FILE f where f.FIL_IDDOC_C = :documentId) ");
             queries.add(baseQuery + " where l.LOG_IDENTITY_C in (select c.COM_ID_C from T_COMMENT c where c.COM_IDDOC_C = :documentId) ");
@@ -72,18 +65,15 @@ public class AuditLogDao {
                 // For admin users, display all logs except ACL logs
                 queries.add(baseQuery + " where l.LOG_CLASSENTITY_C != 'Acl' ");
             } else {
-                // Get all logs originating from the user, not necessarly on owned items
-                // Filter out ACL logs
+
                 queries.add(baseQuery + " where l.LOG_IDUSER_C = :userId and l.LOG_CLASSENTITY_C != 'Acl' ");
                 parameterMap.put("userId", criteria.getUserId());
             }
         }
         
-        // Perform the search
         QueryParam queryParam = new QueryParam(Joiner.on(" union ").join(queries), parameterMap);
         List<Object[]> l = PaginatedLists.executePaginatedQuery(paginatedList, queryParam, sortCriteria);
         
-        // Assemble results
         List<AuditLogDto> auditLogDtoList = new ArrayList<>();
         for (Object[] o : l) {
             int i = 0;
@@ -210,39 +200,7 @@ public class AuditLogDao {
     }
 
 
-//    public List<Map<String, Object>> getMostActiveDocuments(int limit) {
-//        StringBuilder sb = new StringBuilder("select d.DOC_ID_C, d.DOC_TITLE_C, count(l.LOG_ID_C) as count ");
-//        sb.append("from T_DOCUMENT d ");
-//        sb.append("left join T_AUDIT_LOG l on (");
-//        sb.append("  (l.LOG_IDENTITY_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Document') or ");
-//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Comment') or ");
-//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'File') or ");
-//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Acl') or ");
-//        sb.append("  (l.LOG_MESSAGE_C = d.DOC_ID_C and l.LOG_CLASSENTITY_C = 'Route') ");
-//        sb.append(") ");
-//        sb.append("where d.DOC_DELETEDATE_D is null ");
-//        sb.append("group by d.DOC_ID_C, d.DOC_TITLE_C ");
-//        sb.append("having count(l.LOG_ID_C) > 0 ");
-//        sb.append("order by count desc ");
-//        sb.append("limit :limit");
-//
-//        EntityManager em = ThreadLocalContext.get().getEntityManager();
-//        List<Object[]> resultList = em.createNativeQuery(sb.toString())
-//                .setParameter("limit", limit)
-//                .getResultList();
-//
-//        List<Map<String, Object>> result = new ArrayList<>();
-//        for (Object[] row : resultList) {
-//            Map<String, Object> document = new HashMap<>();
-//            document.put("id", (String) row[0]);
-//            document.put("title", (String) row[1]);
-//            document.put("count", ((Number) row[2]).longValue());
-//            result.add(document);
-//        }
-//
-//        return result;
-//    }
-//
+
 
 
 
