@@ -5,6 +5,7 @@
  */
 angular.module('docs').controller('Login', function(Restangular, $scope, $rootScope, $state, $stateParams, $dialog, User, $translate, $uibModal) {
   $scope.codeRequired = false;
+  console.log('Login controller loaded'); // Add this line
 
   // Get the app configuration
   Restangular.one('app').get().then(function(data) {
@@ -19,7 +20,15 @@ angular.module('docs').controller('Login', function(Restangular, $scope, $rootSc
     };
     $scope.login();
   };
-  
+
+  $scope.openRequestAccount = function() {
+    $uibModal.open({
+      templateUrl: 'partial/docs/request.html',  // Make sure this path matches your project structure
+      controller: 'RequestModal'
+    });
+  };
+
+
   // Login
   $scope.login = function() {
     User.login($scope.user).then(function() {
