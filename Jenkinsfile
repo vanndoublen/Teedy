@@ -60,8 +60,6 @@ pipeline {
         // Define environment variables
         DOCKER_IMAGE = 'vanndoublen/teedy'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-        // Use credentials binding for Docker Hub
-        DOCKER_CREDENTIALS = credentials('dockerhub_credentials')
     }
     stages {
         stage('Build') {
@@ -87,41 +85,45 @@ pipeline {
         stage('Upload image') {
             steps {
                 script {
-                    // Login to Docker Hub
-                    sh "echo ${DOCKER_CREDENTIALS_PSW} | docker login -u ${DOCKER_CREDENTIALS_USR} --password-stdin"
+                    // Use withCredentials instead of environment variables for Docker Hub authentication
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials',
+                                                     usernameVariable: 'DOCKER_USERNAME',
+                                                     passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Log in to Docker Hub
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
 
-                    // Push the image with build number tag
-                    sh "docker push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+                        // Push the image
+                        sh "docker push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
 
-                    // Tag and push as latest
-                    sh "docker tag ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} ${env.DOCKER_IMAGE}:latest"
-                    sh "docker push ${env.DOCKER_IMAGE}:latest"
+                        // Optional: Push as latest
+                        sh "docker tag ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} ${env.DOCKER_IMAGE}:latest"
+                        sh "docker push ${env.DOCKER_IMAGE}:latest"
+                    }
                 }
             }
         }
 
-        stage('Run containers') {
-            steps {
-                script {
-                    // Stop and remove existing containers if they exist
-                    sh 'docker stop teedy-container-8082 teedy-container-8083 teedy-container-8084 || true'
-                    sh 'docker rm teedy-container-8082 teedy-container-8083 teedy-container-8084 || true'
+stage('Run containers') {
+    steps {
+        script {
+            // Stop and remove existing containers if they exist
+            sh 'docker stop teedy-container-1 || true'
+            sh 'docker rm teedy-container-1 || true'
+            sh 'docker stop teedy-container-2 || true'
+            sh 'docker rm teedy-container-2 || true'
+            sh 'docker stop teedy-container-3 || true'
+            sh 'docker rm teedy-container-3 || true'
 
-                    // Run three containers with different port mappings
-                    sh "docker run -d -p 8082:8080 --name teedy-container-8082 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
-                    sh "docker run -d -p 8083:8080 --name teedy-container-8083 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
-                    sh "docker run -d -p 8084:8080 --name teedy-container-8084 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+            // Run three containers with different port mappings
+            sh "docker run -d -p 8082:8080 --name teedy-container-1 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+            sh "docker run -d -p 8083:8080 --name teedy-container-2 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+            sh "docker run -d -p 8087:8080 --name teedy-container-3 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
 
-                    // List all teedy containers
-                    sh 'docker ps --filter "name=teedy-container"'
-                }
-            }
+            // List all teedy containers
+            sh 'docker ps --filter "name=teedy-container"'
         }
     }
-    post {
-        always {
-            // Logout from Docker Hub
-            sh 'docker logout'
-        }
+}
+
     }
 }
