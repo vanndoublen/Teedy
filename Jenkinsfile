@@ -82,12 +82,28 @@ pipeline {
             }
         }
 
-        stage('Upload image') {
+//         stage('Upload image') {
+//             steps {
+//                 script {
+//                     docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDENTIALS') {
+//                         docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
+//                         docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
+//                     }
+//                 }
+//             }
+//         }
+stage('Upload image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB_CREDENTIALS') {
-                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
-                        docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+
+                        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                            echo "Attempting to push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+                            docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
+
+                            echo "Attempting to push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} as latest"
+                            docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
+                        }
                     }
                 }
             }
