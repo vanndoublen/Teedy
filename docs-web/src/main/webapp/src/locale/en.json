@@ -1,4 +1,15 @@
 {
+  "request": {
+    "title": "Request New Account",
+    "username": "Username",
+    "email": "Email",
+    "comment": "Comment (Optional)",
+    "submit": "Submit Request",
+    "cancel": "Cancel",
+    "submit_success": "Your account request has been submitted successfully. An administrator will review it.",
+    "submit_error": "An error occurred while submitting your request. Please try again.",
+    "username_exists": "This username is already taken. Please choose another one."
+  },
   "login": {
     "username": "Username",
     "password": "Password",
@@ -10,6 +21,7 @@
     "login_as_guest": "Login as guest",
     "login_failed_title": "Login failed",
     "login_failed_message": "Username or password invalid",
+    "request_account": "Request an account",
     "password_lost_btn": "Password lost?",
     "password_lost_sent_title": "Password reset email sent",
     "password_lost_sent_message": "An email has been sent to <strong>{{ username }}</strong> to reset your password",
@@ -274,6 +286,7 @@
     "menu_general_settings": "General settings",
     "menu_workflow": "Workflow",
     "menu_users": "Users",
+    "menu_user_requests": "User Requests",
     "menu_groups": "Groups",
     "menu_vocabularies": "Vocabularies",
     "menu_configuration": "Configuration",
@@ -324,6 +337,23 @@
         "disable_totp_btn": "Disable two-factor authentification for this user",
         "disable_totp_title": "Disable two-factor authentication",
         "disable_totp_message": "Are you sure you want to disable two-factor authentication for this user?"
+      }
+    },
+    "userrequest": {
+      "title": "Pending User Requests",
+      "username": "Username",
+      "email": "Email",
+      "create_date": "Request Date",
+      "actions": "Actions",
+      "no_requests": "No pending requests",
+      "approve": "Approve Request",
+      "reject": "Reject Request",
+      "approve_title": "Approve User Request",
+      "approve_message": "Are you sure you want to approve the request from {{ username }}?",
+      "reject_title": "Reject User Request",
+      "reject_message": "Are you sure you want to reject the request from {{ username }}?",
+      "login": {
+        "request_account": "Request New Account"
       }
     },
     "workflow": {

@@ -238,6 +238,10 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
+<!--        // added to include resource-->
+        <includes>
+          <include>**/*</include>
+        </includes>
       </resource>
     </resources>
   </build>
