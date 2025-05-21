@@ -56,65 +56,67 @@ pipeline {
     tools {
         maven 'M3'
     }
-environment {
-// define environment variable
-// Jenkins credentials configuration
-DOCKER_HUB_CREDENTIALS = credentials('dockerhub_credentials') // DockerHub credentials ID store in Jenkins
-// Docker Hub Repository's name
-DOCKER_IMAGE = 'vanndoublen/teedy' // your Docker Hub user name andRepository's name
-DOCKER_TAG = "${env.BUILD_NUMBER}" // use build number as tag
-}
-stages {
-stage('Build') {
-steps {
-checkout scmGit(
-branches: [[name: '*/master']],
-extensions: [],
-userRemoteConfigs: [[url: 'https://github.com/vanndoublen/Teedy.git']]
-// your github Repository
-)
-sh 'mvn -B -DskipTests clean package'
-}
-}
-// Building Docker images
-stage('Building image') {
-steps {
-script {
-// assume Dockerfile locate at root
-docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
-}
-}
-}
-// Uploading Docker images into Docker Hub
-stage('Upload image') {
-steps {
-script {
-// sign in Docker Hub
-docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_CREDENTIALS)
- {
-// push image
-docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
-// ：optional: label latest
-docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push('latest')
-}
-}
-}
-}
-// Running Docker container
-stage('Run containers') {
-steps {
-script {
-// stop then remove containers if exists
-sh 'docker stop teedy-container-8081 || true'
-sh 'docker rm teedy-container-8081 || true'
-// run Container
-docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").run(
-'--name teedy-container-8081 -d -p 8081:8080'
-)
-// Optional: list all teedy-containers
-sh 'docker ps --filter "name=teedy-container"'
-}
-}
-}
-}
+    environment {
+        // Define environment variables
+        DOCKER_IMAGE = 'vanndoublen/teedy'
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+    }
+    stages {
+        stage('Build') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: '*/master']],
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/vanndoublen/Teedy.git']]
+                )
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+
+        stage('Building image') {
+            steps {
+                script {
+                    // Build Docker image
+                    docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
+                }
+            }
+        }
+
+        stage('Upload image') {
+            steps {
+                script {
+                    // Use withCredentials instead of environment variables for Docker Hub authentication
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials',
+                                                     usernameVariable: 'DOCKER_USERNAME',
+                                                     passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Log in to Docker Hub
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+
+                        // Push the image
+                        sh "docker push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+
+                        // Optional: Push as latest
+                        sh "docker tag ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} ${env.DOCKER_IMAGE}:latest"
+                        sh "docker push ${env.DOCKER_IMAGE}:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Run containers') {
+            steps {
+                script {
+                    // Stop and remove existing containers
+                    sh 'docker stop teedy-container-8081 || true'
+                    sh 'docker rm teedy-container-8081 || true'
+
+                    // Run the container
+                    sh "docker run --name teedy-container-8081 -d -p 8081:8080 ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}"
+
+                    // List containers
+                    sh 'docker ps --filter "name=teedy-container"'
+                }
+            }
+        }
+    }
 }
